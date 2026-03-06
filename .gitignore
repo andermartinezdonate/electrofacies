@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Data (too large for git)
+data/raw/
+data/wells/inbox/*.las
+data/wells/inbox/*.LAS
+data/wells/inbox/*.csv
+data/wells/processed/
+data/wells/failed/
+
+# Model artifacts (large binaries)
+artifacts/
+!artifacts/.gitkeep
+
+# Outputs
+outputs/
+!outputs/.gitkeep
+
+# Logs
+logs/
+!logs/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/

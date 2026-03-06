@@ -1,0 +1,144 @@
+# Mnemonic standardization map
+# Maps vendor-specific log mnemonics to canonical internal names
+# Case-insensitive matching is applied at runtime
+
+# Canonical name -> list of known aliases (including unit-suffixed variants)
+DEPTH:
+  - "DEPT"
+  - "DEPT.F"
+  - "DEPTH"
+  - "MD"
+  - "MD_FT"
+  - "DEPTH FT"
+  - "DEPTH (FT)"
+  - "MEASURED DEPTH"
+  - "TDEP"
+  - "DEPTMD"
+
+GR:
+  - "GR"
+  - "GR.API"
+  - "GRN"
+  - "GRS"
+  - "GRR"
+  - "GRN.GAPI"
+  - "GRS.GAPI"
+  - "GRR.GAPI"
+  - "GRTN.GAPI"
+  - "GRKTN.GAPI"
+  - "SGR"
+  - "CGR"
+  - "HSGR"
+  - "GAMMA"
+  - "GAMMA RAY"
+  - "ECGR"
+  - "GR_EDTC"
+
+RESD:
+  - "LLD"
+  - "LLD.OHMM"
+  - "ILD"
+  - "ILD.OHMM"
+  - "RO.OHM.M"
+  - "LLS"
+  - "LLS.OHMM"
+  - "ILM"
+  - "ILM.OHMM"
+  - "RT"
+  - "RDEP"
+  - "RD"
+  - "RM"
+  - "RES"
+  - "RESDEEP"
+  - "RT_HR"
+  - "RT90"
+  - "HDRS"
+  - "AT90"
+  - "AHT90"
+  - "M2RX"
+  - "RLLD"
+  - "RILD"
+
+RHOB:
+  - "RHOB"
+  - "RHOZ"
+  - "RHOZ.G/C3"
+  - "RHOZ.GM/CC"
+  - "RHOB.GM/CC"
+  - "ZDEN"
+  - "DEN"
+  - "DENB"
+  - "DENSITY"
+  - "ROBB"
+
+NPHI:
+  - "NPHI"
+  - "TNPH"
+  - "NPOR"
+  - "NPHI.FT3/FT3"
+  - "NPHI.V/V"
+  - "NEUT"
+  - "NPH"
+  - "CNC"
+  - "TNPH.V/V"
+  - "NPHI_LS"
+
+DTC:
+  - "DT"
+  - "DTC"
+  - "DTCO"
+  - "SONIC"
+  - "DT.USEC/FT"
+  - "DTC.US/F"
+  - "DTC.US/FT"
+  - "DT_us/ft"
+  - "AC"
+  - "DTLN"
+
+PE:
+  - "PE"
+  - "PEF"
+  - "PEFZ"
+  - "PEFLA"
+  - "PE.B/E"
+
+CALI:
+  - "CALI"
+  - "CAL"
+  - "HCAL"
+  - "BS"
+  - "CALIPER"
+  - "CLDC"
+
+SP:
+  - "SP"
+  - "SSP"
+  - "SP.MV"
+  - "SPONT"
+
+# Internal display names and units for canonical mnemonics
+display:
+  GR:
+    label: "Gamma Ray"
+    unit: "API"
+  RESD:
+    label: "Deep Resistivity"
+    unit: "ohm.m"
+  RHOB:
+    label: "Bulk Density"
+    unit: "g/cm3"
+  NPHI:
+    label: "Neutron Porosity"
+    unit: "v/v"
+  DTC:
+    label: "Sonic (Compressional)"
+    unit: "us/ft"
+  PE:
+    label: "Photoelectric Factor"
+    unit: "b/e"
+  CALI:
+    label: "Caliper"
+    unit: "in"
+  SP:
+    label: "Spontaneous Potential"
+    unit: "mV"

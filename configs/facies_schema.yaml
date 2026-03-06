@@ -1,0 +1,51 @@
+# Facies classification schema for Delaware Mountain Group
+# Derived from core descriptions — PDB03 training well
+
+facies:
+  massive_sandstone:
+    code: 0
+    color: "#f3e6b3"
+    description: "Structureless, massive sandstone — possible gravity flow or rapid deposition"
+  structured_sandstone:
+    code: 1
+    color: "#e6b657"
+    description: "Laminated, cross-bedded, or ripple-laminated sandstone — tractional structures"
+  sandy_siltstone:
+    code: 2
+    color: "#a7663a"
+    description: "Transitional sandy siltstone — mixed grain size"
+  siltstone:
+    code: 3
+    color: "#505660"
+    description: "Fine-grained siltstone — low energy deposition"
+  calciturbidite:
+    code: 4
+    color: "#2ca25f"
+    description: "Calcareous turbidite — carbonate gravity flow deposit"
+  clast_supported_conglomerate:
+    code: 5
+    color: "#7e3fa0"
+    description: "Clast-supported conglomerate — high energy channel fill"
+
+# Display order (coarsest to finest, with special facies at end)
+display_order:
+  - massive_sandstone
+  - structured_sandstone
+  - sandy_siltstone
+  - siltstone
+  - calciturbidite
+  - clast_supported_conglomerate
+
+# Labels to exclude from training (present in data but not predictable)
+excluded_labels:
+  - missing_strata
+
+# Canonical name mapping from raw label variants
+label_aliases:
+  massive_sandstone: ["massive_sandstone", "massive__sandstone", "massive", "structureless_sandstone", "massive_sand"]
+  structured_sandstone: ["structured_sandstone", "structured", "cross_bedded_sandstone", "planar_laminated", "laminated_sandstone", "ripple_laminated", "dtructured_sandstone"]
+  sandy_siltstone: ["sandy_siltstone", "sandysiltstone", "sandy_silt", "siltsandstone"]
+  siltstone: ["siltstone", "silt"]
+  calciturbidite: ["calciturbidite", "calci_turbidite", "calcarenite_turbidite", "matrix_supported_conglomerate"]
+  clast_supported_conglomerate: ["clast_supported_conglomerate", "clast_supported", "conglomerate_clast_supported", "clast_supported-conglomerate"]
+  missing_strata: ["missing_strata", "gap", "no_data"]

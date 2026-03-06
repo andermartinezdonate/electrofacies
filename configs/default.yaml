@@ -1,0 +1,106 @@
+# Master configuration for the electrofacies pipeline
+# All paths are relative to the project root
+
+project:
+  name: "DMG Electrofacies"
+  version: "1.0.0"
+  formation: "DMG"
+  training_well: "PDB03"
+
+paths:
+  training_data: "data/training/PDB03_training.xlsx"
+  wells_inbox: "data/wells/inbox"
+  wells_processed: "data/wells/processed"
+  wells_failed: "data/wells/failed"
+  artifacts: "artifacts"
+  outputs: "outputs"
+  logs: "logs"
+  configs: "configs"
+
+configs:
+  mnemonic_aliases: "configs/mnemonic_aliases.yaml"
+  model_tiers: "configs/model_tiers.yaml"
+  physical_ranges: "configs/physical_ranges.yaml"
+  facies_schema: "configs/facies_schema.yaml"
+
+# Training configuration
+training:
+  test_size: 0.25
+  random_state: 42
+  cv_folds: 5
+  depth_group_size: 50  # feet per depth block for grouped CV
+  use_smote: true
+  smote_k_neighbors: 3
+
+  # Columns in training data
+  depth_col: "Depth Top (ft)"
+  target_col: "Lithofacies"
+  formation_col: "Formation"
+  formation_filter: "DMG"
+
+  # Raw feature columns (before engineering)
+  raw_features:
+    - "GR (API)"
+    - "RESD (ohm.m)"
+    - "RHOB (g/cm3)"
+    - "NPHI (ft3/ft3)"
+    - "Sonic (DTC us/ft)"
+
+  # Mapping from raw column names to canonical names
+  raw_to_canonical:
+    "GR (API)": "GR"
+    "RESD (ohm.m)": "RESD"
+    "RHOB (g/cm3)": "RHOB"
+    "NPHI (ft3/ft3)": "NPHI"
+    "Sonic (DTC us/ft)": "DTC"
+
+# Model hyperparameter search spaces
+models:
+  random_forest:
+    n_estimators: [200, 300, 500, 700]
+    max_depth: [null, 10, 15, 20, 25]
+    min_samples_split: [2, 5, 10]
+    min_samples_leaf: [1, 2, 3, 5]
+    max_features: ["sqrt", "log2", null]
+    class_weight: ["balanced", "balanced_subsample"]
+    n_iter_search: 40
+
+  xgboost:
+    n_estimators: [200, 300, 500]
+    max_depth: [4, 6, 8, 10]
+    learning_rate: [0.01, 0.05, 0.1, 0.2]
+    subsample: [0.7, 0.8, 0.9, 1.0]
+    colsample_bytree: [0.7, 0.8, 0.9, 1.0]
+    min_child_weight: [1, 3, 5]
+    gamma: [0, 0.1, 0.3]
+    n_iter_search: 50
+
+# Feature engineering parameters
+feature_engineering:
+  rolling_window: 5
+  diff_lag: 1
+  include_ratios: true
+  winsorize_lower: 0.01
+  winsorize_upper: 0.99
+
+# QC thresholds
+qc:
+  confidence_threshold: 0.50
+  ood_percentile: 95
+  min_log_coverage: 0.70
+  max_null_fraction: 0.30
+  well_qc_pass_threshold: 0.80  # fraction of intervals with GOOD QC
+
+# Depth handling
+depth:
+  unit: "ft"
+  resample_step: 0.5
+  ft_to_m: 0.3048
+
+# Output settings
+output:
+  save_csv: true
+  save_las: true
+  save_plots: true
+  plot_dpi: 300
+  plot_format: ["png", "tiff"]

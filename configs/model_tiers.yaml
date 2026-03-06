@@ -1,0 +1,50 @@
+# Model tier definitions
+# Each tier defines a feature set and corresponds to a trained model
+# Wells are routed to the highest tier whose required logs are all available
+
+tiers:
+  tier_1:
+    name: "Full Suite"
+    description: "All 5 logs available — best prediction quality"
+    required_logs: [GR, RESD, RHOB, NPHI, DTC]
+    priority: 1  # highest priority (selected first if all logs present)
+
+  tier_2:
+    name: "No Sonic"
+    description: "4 logs without sonic — good prediction quality"
+    required_logs: [GR, RESD, RHOB, NPHI]
+    priority: 2
+
+  tier_3:
+    name: "Triple Combo"
+    description: "GR + Resistivity + Density — moderate quality"
+    required_logs: [GR, RESD, RHOB]
+    priority: 3
+
+  tier_4:
+    name: "Minimal"
+    description: "GR + Resistivity only — baseline predictions"
+    required_logs: [GR, RESD]
+    priority: 4
+
+# Algorithms to train per tier
+algorithms:
+  - random_forest
+  - xgboost
+
+# Feature engineering applied on top of raw logs
+feature_engineering:
+  rolling_window: 5
+  diff_lag: 1
+  include_z_scores: true
+  include_rolling_mean: true
+  include_rolling_std: true
+  include_diff: true
+  include_relative_depth: true
+
+# Mapping from tier name to legacy model names (for backwards compatibility)
+legacy_mapping:
+  tier_4: "Model1"
+  tier_3: "Model2"
+  tier_2: "Model3"
+  tier_1: "Model4"

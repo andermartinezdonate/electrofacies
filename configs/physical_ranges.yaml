@@ -1,0 +1,80 @@
+# Physical valid ranges for well log curves
+# Values outside these ranges are flagged as suspect during QC
+# Ranges are inclusive [min, max]
+
+ranges:
+  GR:
+    min: 0
+    max: 350
+    unit: "API"
+    typical_min: 10
+    typical_max: 200
+    description: "Gamma Ray — natural radioactivity"
+
+  RESD:
+    min: 0.01
+    max: 100000
+    unit: "ohm.m"
+    typical_min: 0.1
+    typical_max: 5000
+    log_scale: true
+    description: "Deep Resistivity"
+
+  RHOB:
+    min: 1.0
+    max: 3.5
+    unit: "g/cm3"
+    typical_min: 2.0
+    typical_max: 2.85
+    description: "Bulk Density — values <1.8 suggest washout"
+
+  NPHI:
+    min: -0.15
+    max: 1.0
+    unit: "v/v"
+    typical_min: 0.0
+    typical_max: 0.45
+    description: "Neutron Porosity — negative values possible in dense formations"
+
+  DTC:
+    min: 30
+    max: 200
+    unit: "us/ft"
+    typical_min: 40
+    typical_max: 140
+    description: "Compressional Sonic — slowness"
+
+  PE:
+    min: 0
+    max: 15
+    unit: "b/e"
+    typical_min: 1.0
+    typical_max: 6.0
+    description: "Photoelectric Factor"
+
+  CALI:
+    min: 3
+    max: 24
+    unit: "in"
+    typical_min: 6
+    typical_max: 16
+    description: "Caliper — borehole diameter"
+
+  SP:
+    min: -250
+    max: 250
+    unit: "mV"
+    typical_min: -150
+    typical_max: 50
+    description: "Spontaneous Potential"
+
+# Washout detection (density/neutron unreliable)
+washout:
+  caliper_excess_inches: 2.0
+  bit_size_default: 8.75
+
+# Null/flatline detection
+quality:
+  max_null_fraction: 0.30
+  flatline_window: 20
+  flatline_std_threshold: 0.001
