@@ -79,7 +79,7 @@ models:
 feature_engineering:
   rolling_window: 5
   diff_lag: 1
-  include_ratios: true
+  include_ratios: false
   winsorize_lower: 0.01
   winsorize_upper: 0.99
 

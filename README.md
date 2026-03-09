@@ -21,10 +21,10 @@ The system uses a **4-tier routing** approach that automatically selects the bes
 
 | Tier | Required Logs | Features |
 |------|--------------|----------|
-| Tier 1 — Full Suite | GR, RESD, RHOB, NPHI, DTC | 27 |
-| Tier 2 — No Sonic | GR, RESD, RHOB, NPHI | 22 |
-| Tier 3 — Triple Combo | GR, RESD, RHOB | 16 |
-| Tier 4 — Minimal | GR, RESD | 11 |
+| Tier 1 — Full Suite | GR, RESD, RHOB, NPHI, DTC | 21 |
+| Tier 2 — No Sonic | GR, RESD, RHOB, NPHI | 17 |
+| Tier 3 — Triple Combo | GR, RESD, RHOB | 13 |
+| Tier 4 — Minimal | GR, RESD | 9 |
 
 Each tier trains both **Random Forest** and **XGBoost** classifiers with:
 - SMOTE oversampling for class imbalance
@@ -34,7 +34,6 @@ Each tier trains both **Random Forest** and **XGBoost** classifiers with:
 ### Feature Engineering
 
 - Z-scores, rolling mean/std (window=5), first-order differences
-- Log ratios: NPHI-RHOB separation, GR/RESD, DTC*RHOB (acoustic impedance), log10(RESD)
 - Relative depth normalized to [0, 1]
 
 ### Mnemonic Standardization
