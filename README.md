@@ -8,12 +8,12 @@ Upload a LAS file, get back facies predictions with confidence scores and QC fla
 
 | Facies | Description |
 |--------|-------------|
-| Massive Sandstone | Structureless, gravity-flow deposits |
-| Structured Sandstone | Laminated, tractional structures |
-| Sandy Siltstone | Transitional, mixed grain size |
-| Siltstone | Fine-grained, low-energy |
-| Calciturbidite | Calcareous gravity-flow deposits |
-| Clast-Supported Conglomerate | High-energy channel deposits |
+| Massive Sandstone | Structureless, ungraded sandstones |
+| Structured Sandstone | Planar parallel laminated sandstones |
+| Sandy Siltstone | Clayey sandstones |
+| Siltstone | Organic-rich siltstones |
+| Calciturbidite | Calcareous matrix-rich sandstones to conglomerates |
+| Clast-Supported Conglomerate | Calcareous conglomerates |
 
 ## Model Architecture
 
@@ -39,7 +39,7 @@ Each tier trains both **Random Forest** and **XGBoost** classifiers with:
 
 ### Mnemonic Standardization
 
-Automatically maps 144+ vendor-specific log mnemonics to 8 canonical names (GR, RESD, RHOB, NPHI, DTC, PE, CALI, SP).
+Automatically maps 144+ log mnemonics to 5 canonical names (GR, RESD, RHOB, NPHI, DTC).
 
 ## Quick Start
 
