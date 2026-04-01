@@ -1202,6 +1202,9 @@ def _render_landing_page():
     # Facies descriptions
     render_facies_descriptions()
 
+    # Training data display
+    render_training_data()
+
     # Model metrics
     render_model_metrics()
 
@@ -1220,6 +1223,126 @@ logs are all available with at least 70% non-null coverage.
 """)
 
     render_footer()
+
+
+@st.cache_data
+def _load_training_data():
+    """Load the PDB03 training dataset for display."""
+    config = load_default_config_cached()
+    training_path = PROJECT_ROOT / config["paths"]["training_data"]
+    if not training_path.exists():
+        return None
+    df = pd.read_excel(training_path, engine="openpyxl")
+    return df
+
+
+def render_training_data():
+    """Show the training well's log curves and lithofacies."""
+    with st.expander("Training Data — PDB03 Well", expanded=False):
+        raw_df = _load_training_data()
+        if raw_df is None:
+            st.warning("Training data file not found.")
+            return
+
+        config = load_default_config_cached()
+        train_cfg = config["training"]
+        raw_to_canon = train_cfg["raw_to_canonical"]
+        depth_col = train_cfg["depth_col"]
+        target_col = train_cfg["target_col"]
+
+        st.markdown(
+            f"**{len(raw_df):,} samples** at 0.5 ft spacing &nbsp;|&nbsp; "
+            f"**5 log curves** &nbsp;|&nbsp; "
+            f"**{raw_df[target_col].nunique()} lithofacies classes**"
+        )
+
+        # Build a display DataFrame with canonical names
+        rename = {raw: canon for raw, canon in raw_to_canon.items() if raw in raw_df.columns}
+        disp = raw_df.rename(columns=rename).copy()
+        if depth_col in disp.columns:
+            disp = disp.rename(columns={depth_col: "DEPTH"})
+        disp = disp.set_index("DEPTH")
+
+        # Plot: log curves + lithofacies strip
+        canon_logs = list(raw_to_canon.values())
+        available = [t for t in TRACK_SPECS if t[0] in disp.columns]
+        n_logs = len(available)
+        n_total = n_logs + 1  # +1 for lithofacies strip
+
+        width_ratios = [1.2] * n_logs + [0.5]
+        fig_width = sum(width_ratios) * 1.0 + 1.5
+        fig_height = 14
+
+        fig, axes = plt.subplots(
+            1, n_total,
+            figsize=(fig_width, fig_height),
+            sharey=True,
+            gridspec_kw={"width_ratios": width_ratios, "wspace": 0.05},
+        )
+        fig.patch.set_facecolor(PLOT_BG)
+
+        depths = disp.index.values.astype(float)
+        d_min, d_max = np.nanmin(depths), np.nanmax(depths)
+        axes[0].set_ylim(d_max, d_min)
+        axes[0].set_ylabel("Depth (ft)", fontsize=9, color=UT_CHARCOAL)
+
+        for idx, (mnem, xmin, xmax, log_scale, label, unit) in enumerate(available):
+            ax = axes[idx]
+            ax.set_facecolor(PLOT_BG)
+            curve = disp[mnem].values.astype(float)
+            color = LOG_COLORS.get(mnem, "#555555")
+            if log_scale:
+                ax.set_xscale("log")
+            ax.plot(curve, depths, color=color, linewidth=0.6, alpha=0.9)
+            ax.set_xlim(xmin, xmax)
+            ax.set_xlabel(f"{label} ({unit})", fontsize=8, color=color)
+            ax.tick_params(axis="x", colors=color, labelsize=7)
+            ax.tick_params(axis="y", colors=UT_CHARCOAL, labelsize=7)
+            ax.xaxis.set_label_position("top")
+            ax.xaxis.tick_top()
+            ax.grid(True, which="both", axis="y", linewidth=0.3, alpha=0.3, color=PLOT_GRID_COLOR)
+            ax.grid(True, which="major", axis="x", linewidth=0.3, alpha=0.3, color=PLOT_GRID_COLOR)
+
+        # Lithofacies strip
+        ax_facies = axes[n_logs]
+        ax_facies.set_facecolor(PLOT_BG)
+        if target_col in raw_df.columns:
+            facies_labels = raw_df[target_col].values
+            facies_schema = load_facies_schema_cached()
+            # Canonicalize for color lookup
+            from electrofacies.preprocessing.standardize import canonicalize_facies_labels
+            canon_labels = canonicalize_facies_labels(
+                pd.Series(facies_labels), facies_schema
+            ).values
+
+            for i in range(len(depths) - 1):
+                label = canon_labels[i]
+                color = FACIES_COLORS.get(label, "#dddddd")
+                ax_facies.axhspan(depths[i], depths[i + 1], color=color, alpha=0.9)
+
+        ax_facies.set_xlim(0, 1)
+        ax_facies.set_xticks([])
+        ax_facies.set_xlabel("Lithofacies", fontsize=8, color=UT_CHARCOAL)
+        ax_facies.xaxis.set_label_position("top")
+
+        fig.suptitle("PDB03 — Training Well (Delaware Mountain Group)",
+                     fontsize=11, color=UT_CHARCOAL, y=0.98)
+        plt.tight_layout(rect=[0, 0, 1, 0.97])
+        st.pyplot(fig, use_container_width=True)
+        plt.close(fig)
+
+        # Facies distribution table
+        if target_col in raw_df.columns:
+            from electrofacies.preprocessing.standardize import canonicalize_facies_labels as _canon
+            facies_schema = load_facies_schema_cached()
+            canon_series = _canon(raw_df[target_col], facies_schema)
+            counts = canon_series.value_counts()
+            dist_df = pd.DataFrame({
+                "Lithofacies": [format_facies_name(f) for f in counts.index],
+                "Count": counts.values,
+                "%": [f"{v / len(raw_df) * 100:.1f}%" for v in counts.values],
+            })
+            st.dataframe(dist_df, use_container_width=True, hide_index=True)
 
 
 if __name__ == "__main__":

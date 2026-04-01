@@ -5,27 +5,27 @@ facies:
   massive_sandstone:
     code: 0
     color: "#f3e6b3"
-    description: "Structureless, massive sandstone — possible gravity flow or rapid deposition"
+    description: "Structureless, ungraded sandstone"
   structured_sandstone:
     code: 1
     color: "#e6b657"
-    description: "Laminated, cross-bedded, or ripple-laminated sandstone — tractional structures"
+    description: "Planar-parallel laminated sandstone"
   sandy_siltstone:
     code: 2
     color: "#a7663a"
-    description: "Transitional sandy siltstone — mixed grain size"
+    description: "Clayey sandstone to sandy siltstone"
   siltstone:
     code: 3
     color: "#505660"
-    description: "Fine-grained siltstone — low energy deposition"
+    description: "Organic-rich siltstone"
   calciturbidite:
     code: 4
     color: "#2ca25f"
-    description: "Calcareous turbidite — carbonate gravity flow deposit"
+    description: "Calcareous matrix-rich sandstone to conglomerate"
   clast_supported_conglomerate:
     code: 5
     color: "#7e3fa0"
-    description: "Clast-supported conglomerate — high energy channel fill"
+    description: "Calcareous clast-supported conglomerate"
 
 # Display order (coarsest to finest, with special facies at end)
 display_order:
