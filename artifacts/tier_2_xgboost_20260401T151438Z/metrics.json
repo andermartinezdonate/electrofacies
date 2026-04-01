@@ -1,0 +1,628 @@
+{
+  "accuracy": 0.6501623376623377,
+  "balanced_accuracy": 0.6331457173703163,
+  "cohen_kappa": 0.5556764238023794,
+  "per_class": {
+    "calciturbidite": {
+      "precision": 0.6638655462184874,
+      "recall": 0.398989898989899,
+      "f1": 0.49842271293375395,
+      "support": 198
+    },
+    "clast_supported_conglomerate": {
+      "precision": 0.41379310344827586,
+      "recall": 0.5454545454545454,
+      "f1": 0.47058823529411764,
+      "support": 22
+    },
+    "massive_sandstone": {
+      "precision": 0.4846938775510204,
+      "recall": 0.7851239669421488,
+      "f1": 0.5993690851735016,
+      "support": 121
+    },
+    "sandy_siltstone": {
+      "precision": 0.5816023738872403,
+      "recall": 0.6282051282051282,
+      "f1": 0.6040061633281972,
+      "support": 312
+    },
+    "siltstone": {
+      "precision": 0.785,
+      "recall": 0.7072072072072072,
+      "f1": 0.7440758293838863,
+      "support": 222
+    },
+    "structured_sandstone": {
+      "precision": 0.7464387464387464,
+      "recall": 0.7338935574229691,
+      "f1": 0.7401129943502824,
+      "support": 357
+    }
+  },
+  "confusion_matrix": [
+    [
+      79,
+      9,
+      57,
+      10,
+      5,
+      38
+    ],
+    [
+      10,
+      12,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      95,
+      9,
+      1,
+      16
+    ],
+    [
+      23,
+      8,
+      16,
+      196,
+      34,
+      35
+    ],
+    [
+      0,
+      0,
+      0,
+      65,
+      157,
+      0
+    ],
+    [
+      7,
+      0,
+      28,
+      57,
+      3,
+      262
+    ]
+  ],
+  "classification_report": "                              precision    recall  f1-score   support\n\n              calciturbidite       0.66      0.40      0.50       198\nclast_supported_conglomerate       0.41      0.55      0.47        22\n           massive_sandstone       0.48      0.79      0.60       121\n             sandy_siltstone       0.58      0.63      0.60       312\n                   siltstone       0.79      0.71      0.74       222\n        structured_sandstone       0.75      0.73      0.74       357\n\n                    accuracy                           0.65      1232\n                   macro avg       0.61      0.63      0.61      1232\n                weighted avg       0.67      0.65      0.65      1232\n",
+  "cv_evaluation": {
+    "mean_balanced_accuracy": 0.7350186456630174,
+    "std_balanced_accuracy": 0.04161361812727833,
+    "mean_cohen_kappa": 0.6934825546533635,
+    "std_cohen_kappa": 0.005175945971211025,
+    "n_splits": 5,
+    "per_class_cv": {
+      "calciturbidite": {
+        "mean_recall": 0.6614097968936679,
+        "std_recall": 0.2001807712966991,
+        "mean_f1": 0.5808208970260447,
+        "std_f1": 0.16140132844881666,
+        "mean_precision": 0.5623887099138175,
+        "std_precision": 0.19195978103013142
+      },
+      "clast_supported_conglomerate": {
+        "mean_recall": 0.6603260869565217,
+        "std_recall": 0.3565648171217594,
+        "mean_f1": 0.4803115737411649,
+        "std_f1": 0.26221853899133635,
+        "mean_precision": 0.4008867997673968,
+        "std_precision": 0.24115130120895253
+      },
+      "massive_sandstone": {
+        "mean_recall": 0.8351159383758132,
+        "std_recall": 0.029651178966174023,
+        "mean_f1": 0.8412746316059468,
+        "std_f1": 0.012605960711130501,
+        "mean_precision": 0.8487671432665934,
+        "std_precision": 0.02139145213494421
+      },
+      "sandy_siltstone": {
+        "mean_recall": 0.7215903815201509,
+        "std_recall": 0.08335897501150594,
+        "mean_f1": 0.6989545581332177,
+        "std_f1": 0.04691977245556927,
+        "mean_precision": 0.6826691193659058,
+        "std_precision": 0.034696503082800145
+      },
+      "siltstone": {
+        "mean_recall": 0.7847407924315226,
+        "std_recall": 0.09663448819579258,
+        "mean_f1": 0.7414280780297787,
+        "std_f1": 0.07789619432283323,
+        "mean_precision": 0.7081281173952021,
+        "std_precision": 0.09060995409355402
+      },
+      "structured_sandstone": {
+        "mean_recall": 0.7469288778004285,
+        "std_recall": 0.04641006638123709,
+        "mean_f1": 0.7827401487347329,
+        "std_f1": 0.035635365415122605,
+        "mean_precision": 0.8235837293208862,
+        "std_precision": 0.03582408869628891
+      }
+    },
+    "per_fold": [
+      {
+        "accuracy": 0.7761506276150628,
+        "balanced_accuracy": 0.7620668221569206,
+        "cohen_kappa": 0.6908626603605373,
+        "per_class": {
+          "calciturbidite": {
+            "precision": 0.5238095238095238,
+            "recall": 0.4074074074074074,
+            "f1": 0.4583333333333333,
+            "support": 27
+          },
+          "clast_supported_conglomerate": {
+            "precision": 0.32142857142857145,
+            "recall": 1.0,
+            "f1": 0.4864864864864865,
+            "support": 9
+          },
+          "massive_sandstone": {
+            "precision": 0.8629629629629629,
+            "recall": 0.8411552346570397,
+            "f1": 0.8519195612431444,
+            "support": 277
+          },
+          "sandy_siltstone": {
+            "precision": 0.6306306306306306,
+            "recall": 0.8092485549132948,
+            "f1": 0.7088607594936709,
+            "support": 173
+          },
+          "siltstone": {
+            "precision": 0.759493670886076,
+            "recall": 0.7792207792207793,
+            "f1": 0.7692307692307693,
+            "support": 77
+          },
+          "structured_sandstone": {
+            "precision": 0.8601190476190477,
+            "recall": 0.7353689567430025,
+            "f1": 0.7928669410150891,
+            "support": 393
+          }
+        },
+        "confusion_matrix": [
+          [
+            11,
+            5,
+            0,
+            9,
+            1,
+            1
+          ],
+          [
+            0,
+            9,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            233,
+            3,
+            1,
+            40
+          ],
+          [
+            3,
+            9,
+            0,
+            140,
+            17,
+            4
+          ],
+          [
+            0,
+            0,
+            0,
+            15,
+            60,
+            2
+          ],
+          [
+            7,
+            5,
+            37,
+            55,
+            0,
+            289
+          ]
+        ],
+        "classification_report": "                              precision    recall  f1-score   support\n\n              calciturbidite       0.52      0.41      0.46        27\nclast_supported_conglomerate       0.32      1.00      0.49         9\n           massive_sandstone       0.86      0.84      0.85       277\n             sandy_siltstone       0.63      0.81      0.71       173\n                   siltstone       0.76      0.78      0.77        77\n        structured_sandstone       0.86      0.74      0.79       393\n\n                    accuracy                           0.78       956\n                   macro avg       0.66      0.76      0.68       956\n                weighted avg       0.80      0.78      0.78       956\n",
+        "fold": 0
+      },
+      {
+        "accuracy": 0.7663096397273612,
+        "balanced_accuracy": 0.7459667091156268,
+        "cohen_kappa": 0.6867545519591185,
+        "per_class": {
+          "calciturbidite": {
+            "precision": 0.2804878048780488,
+            "recall": 0.7419354838709677,
+            "f1": 0.40707964601769914,
+            "support": 31
+          },
+          "clast_supported_conglomerate": {
+            "precision": 0.625,
+            "recall": 0.625,
+            "f1": 0.625,
+            "support": 8
+          },
+          "massive_sandstone": {
+            "precision": 0.8483965014577259,
+            "recall": 0.7886178861788617,
+            "f1": 0.8174157303370787,
+            "support": 369
+          },
+          "sandy_siltstone": {
+            "precision": 0.7337278106508875,
+            "recall": 0.779874213836478,
+            "f1": 0.7560975609756098,
+            "support": 159
+          },
+          "siltstone": {
+            "precision": 0.8382352941176471,
+            "recall": 0.8260869565217391,
+            "f1": 0.8321167883211679,
+            "support": 138
+          },
+          "structured_sandstone": {
+            "precision": 0.7958477508650519,
+            "recall": 0.7142857142857143,
+            "f1": 0.7528641571194763,
+            "support": 322
+          }
+        },
+        "confusion_matrix": [
+          [
+            23,
+            3,
+            0,
+            3,
+            1,
+            1
+          ],
+          [
+            3,
+            5,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            21,
+            0,
+            291,
+            4,
+            1,
+            52
+          ],
+          [
+            14,
+            0,
+            0,
+            124,
+            19,
+            2
+          ],
+          [
+            4,
+            0,
+            0,
+            16,
+            114,
+            4
+          ],
+          [
+            17,
+            0,
+            52,
+            22,
+            1,
+            230
+          ]
+        ],
+        "classification_report": "                              precision    recall  f1-score   support\n\n              calciturbidite       0.28      0.74      0.41        31\nclast_supported_conglomerate       0.62      0.62      0.62         8\n           massive_sandstone       0.85      0.79      0.82       369\n             sandy_siltstone       0.73      0.78      0.76       159\n                   siltstone       0.84      0.83      0.83       138\n        structured_sandstone       0.80      0.71      0.75       322\n\n                    accuracy                           0.77      1027\n                   macro avg       0.69      0.75      0.70      1027\n                weighted avg       0.79      0.77      0.78      1027\n",
+        "fold": 1
+      },
+      {
+        "accuracy": 0.788,
+        "balanced_accuracy": 0.7467769648033625,
+        "cohen_kappa": 0.7001414427157002,
+        "per_class": {
+          "calciturbidite": {
+            "precision": 0.46296296296296297,
+            "recall": 0.5555555555555556,
+            "f1": 0.5050505050505051,
+            "support": 45
+          },
+          "clast_supported_conglomerate": {
+            "precision": 0.38636363636363635,
+            "recall": 0.7391304347826086,
+            "f1": 0.5074626865671642,
+            "support": 23
+          },
+          "massive_sandstone": {
+            "precision": 0.8787878787878788,
+            "recall": 0.8233438485804416,
+            "f1": 0.8501628664495114,
+            "support": 317
+          },
+          "sandy_siltstone": {
+            "precision": 0.6666666666666666,
+            "recall": 0.583941605839416,
+            "f1": 0.622568093385214,
+            "support": 137
+          },
+          "siltstone": {
+            "precision": 0.684931506849315,
+            "recall": 0.9433962264150944,
+            "f1": 0.7936507936507936,
+            "support": 53
+          },
+          "structured_sandstone": {
+            "precision": 0.8616504854368932,
+            "recall": 0.8352941176470589,
+            "f1": 0.8482676224611708,
+            "support": 425
+          }
+        },
+        "confusion_matrix": [
+          [
+            25,
+            19,
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            17,
+            0,
+            3,
+            2,
+            0
+          ],
+          [
+            5,
+            1,
+            261,
+            12,
+            1,
+            37
+          ],
+          [
+            11,
+            6,
+            2,
+            80,
+            18,
+            20
+          ],
+          [
+            0,
+            0,
+            0,
+            3,
+            50,
+            0
+          ],
+          [
+            12,
+            1,
+            34,
+            21,
+            2,
+            355
+          ]
+        ],
+        "classification_report": "                              precision    recall  f1-score   support\n\n              calciturbidite       0.46      0.56      0.51        45\nclast_supported_conglomerate       0.39      0.74      0.51        23\n           massive_sandstone       0.88      0.82      0.85       317\n             sandy_siltstone       0.67      0.58      0.62       137\n                   siltstone       0.68      0.94      0.79        53\n        structured_sandstone       0.86      0.84      0.85       425\n\n                    accuracy                           0.79      1000\n                   macro avg       0.66      0.75      0.69      1000\n                weighted avg       0.80      0.79      0.79      1000\n",
+        "fold": 2
+      },
+      {
+        "accuracy": 0.7777777777777778,
+        "balanced_accuracy": 0.6534360490001286,
+        "cohen_kappa": 0.6907120838788827,
+        "per_class": {
+          "calciturbidite": {
+            "precision": 0.7211538461538461,
+            "recall": 1.0,
+            "f1": 0.8379888268156425,
+            "support": 75
+          },
+          "clast_supported_conglomerate": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 6
+          },
+          "massive_sandstone": {
+            "precision": 0.8162650602409639,
+            "recall": 0.8798701298701299,
+            "f1": 0.846875,
+            "support": 308
+          },
+          "sandy_siltstone": {
+            "precision": 0.6788321167883211,
+            "recall": 0.6690647482014388,
+            "f1": 0.6739130434782609,
+            "support": 139
+          },
+          "siltstone": {
+            "precision": 0.5641025641025641,
+            "recall": 0.6666666666666666,
+            "f1": 0.6111111111111112,
+            "support": 33
+          },
+          "structured_sandstone": {
+            "precision": 0.8298611111111112,
+            "recall": 0.7050147492625368,
+            "f1": 0.7623604465709729,
+            "support": 339
+          }
+        },
+        "confusion_matrix": [
+          [
+            75,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            6,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            271,
+            1,
+            0,
+            36
+          ],
+          [
+            20,
+            0,
+            0,
+            93,
+            15,
+            11
+          ],
+          [
+            0,
+            0,
+            0,
+            9,
+            22,
+            2
+          ],
+          [
+            3,
+            0,
+            61,
+            34,
+            2,
+            239
+          ]
+        ],
+        "classification_report": "                              precision    recall  f1-score   support\n\n              calciturbidite       0.72      1.00      0.84        75\nclast_supported_conglomerate       0.00      0.00      0.00         6\n           massive_sandstone       0.82      0.88      0.85       308\n             sandy_siltstone       0.68      0.67      0.67       139\n                   siltstone       0.56      0.67      0.61        33\n        structured_sandstone       0.83      0.71      0.76       339\n\n                    accuracy                           0.78       900\n                   macro avg       0.60      0.65      0.62       900\n                weighted avg       0.78      0.78      0.77       900\n",
+        "fold": 3
+      },
+      {
+        "accuracy": 0.774,
+        "balanced_accuracy": 0.7668466832390485,
+        "cohen_kappa": 0.6989420343525788,
+        "per_class": {
+          "calciturbidite": {
+            "precision": 0.8235294117647058,
+            "recall": 0.6021505376344086,
+            "f1": 0.6956521739130435,
+            "support": 93
+          },
+          "clast_supported_conglomerate": {
+            "precision": 0.6716417910447762,
+            "recall": 0.9375,
+            "f1": 0.782608695652174,
+            "support": 48
+          },
+          "massive_sandstone": {
+            "precision": 0.8374233128834356,
+            "recall": 0.8425925925925926,
+            "f1": 0.84,
+            "support": 324
+          },
+          "sandy_siltstone": {
+            "precision": 0.7034883720930233,
+            "recall": 0.7658227848101266,
+            "f1": 0.7333333333333333,
+            "support": 158
+          },
+          "siltstone": {
+            "precision": 0.6938775510204082,
+            "recall": 0.7083333333333334,
+            "f1": 0.7010309278350515,
+            "support": 48
+          },
+          "structured_sandstone": {
+            "precision": 0.7704402515723271,
+            "recall": 0.7446808510638298,
+            "f1": 0.7573415765069552,
+            "support": 329
+          }
+        },
+        "confusion_matrix": [
+          [
+            56,
+            15,
+            8,
+            9,
+            0,
+            5
+          ],
+          [
+            3,
+            45,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            273,
+            4,
+            1,
+            45
+          ],
+          [
+            0,
+            2,
+            1,
+            121,
+            11,
+            23
+          ],
+          [
+            0,
+            1,
+            0,
+            13,
+            34,
+            0
+          ],
+          [
+            8,
+            4,
+            44,
+            25,
+            3,
+            245
+          ]
+        ],
+        "classification_report": "                              precision    recall  f1-score   support\n\n              calciturbidite       0.82      0.60      0.70        93\nclast_supported_conglomerate       0.67      0.94      0.78        48\n           massive_sandstone       0.84      0.84      0.84       324\n             sandy_siltstone       0.70      0.77      0.73       158\n                   siltstone       0.69      0.71      0.70        48\n        structured_sandstone       0.77      0.74      0.76       329\n\n                    accuracy                           0.77      1000\n                   macro avg       0.75      0.77      0.75      1000\n                weighted avg       0.78      0.77      0.77      1000\n",
+        "fold": 4
+      }
+    ]
+  }
+}

@@ -1191,7 +1191,7 @@ def _render_landing_page():
     steps = [
         ("1. Upload", "Drop one or more LAS files above. We support 144+ vendor mnemonic aliases."),
         ("2. Validate", "Physical range checks, washout detection, flatline detection, null coverage audit."),
-        ("3. Predict", "Auto-selects the best model tier based on available logs. Runs RF & XGBoost."),
+        ("3. Predict", "Auto-selects the best model tier based on available logs. Runs RF, XGBoost & Extra Trees."),
         ("4. Download", "Get predictions with confidence scores, QC flags, and publication-ready figures."),
     ]
     for col, (title, desc) in zip(cols, steps):

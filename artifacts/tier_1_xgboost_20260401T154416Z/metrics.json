@@ -1,0 +1,94 @@
+{
+  "accuracy": 0.6574675324675324,
+  "balanced_accuracy": 0.6361086772183029,
+  "cohen_kappa": 0.5643608160693396,
+  "per_class": {
+    "calciturbidite": {
+      "precision": 0.6756756756756757,
+      "recall": 0.3787878787878788,
+      "f1": 0.4854368932038835,
+      "support": 198
+    },
+    "clast_supported_conglomerate": {
+      "precision": 0.4444444444444444,
+      "recall": 0.5454545454545454,
+      "f1": 0.4897959183673469,
+      "support": 22
+    },
+    "massive_sandstone": {
+      "precision": 0.47058823529411764,
+      "recall": 0.7933884297520661,
+      "f1": 0.5907692307692308,
+      "support": 121
+    },
+    "sandy_siltstone": {
+      "precision": 0.5993975903614458,
+      "recall": 0.6378205128205128,
+      "f1": 0.6180124223602484,
+      "support": 312
+    },
+    "siltstone": {
+      "precision": 0.8105263157894737,
+      "recall": 0.6936936936936937,
+      "f1": 0.7475728155339806,
+      "support": 222
+    },
+    "structured_sandstone": {
+      "precision": 0.7445652173913043,
+      "recall": 0.7675070028011205,
+      "f1": 0.7558620689655172,
+      "support": 357
+    }
+  },
+  "confusion_matrix": [
+    [
+      75,
+      10,
+      58,
+      10,
+      4,
+      41
+    ],
+    [
+      9,
+      12,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      96,
+      7,
+      1,
+      17
+    ],
+    [
+      22,
+      5,
+      20,
+      199,
+      30,
+      36
+    ],
+    [
+      0,
+      0,
+      0,
+      68,
+      154,
+      0
+    ],
+    [
+      5,
+      0,
+      30,
+      47,
+      1,
+      274
+    ]
+  ],
+  "classification_report": "                              precision    recall  f1-score   support\n\n              calciturbidite       0.68      0.38      0.49       198\nclast_supported_conglomerate       0.44      0.55      0.49        22\n           massive_sandstone       0.47      0.79      0.59       121\n             sandy_siltstone       0.60      0.64      0.62       312\n                   siltstone       0.81      0.69      0.75       222\n        structured_sandstone       0.74      0.77      0.76       357\n\n                    accuracy                           0.66      1232\n                   macro avg       0.62      0.64      0.61      1232\n                weighted avg       0.68      0.66      0.66      1232\n"
+}

@@ -1,0 +1,37 @@
+{
+  "timestamp": "20260401T150610Z",
+  "tier": "tier_1",
+  "algorithm": "random_forest",
+  "feature_names": [
+    "GR_zscore",
+    "RESD_zscore",
+    "RHOB_zscore",
+    "NPHI_zscore",
+    "DTC_zscore",
+    "GR_rmean",
+    "RESD_rmean",
+    "RHOB_rmean",
+    "NPHI_rmean",
+    "DTC_rmean",
+    "GR_rstd",
+    "RESD_rstd",
+    "RHOB_rstd",
+    "NPHI_rstd",
+    "DTC_rstd",
+    "GR_diff",
+    "RESD_diff",
+    "RHOB_diff",
+    "NPHI_diff",
+    "DTC_diff",
+    "relative_depth"
+  ],
+  "class_names": [
+    "calciturbidite",
+    "clast_supported_conglomerate",
+    "massive_sandstone",
+    "sandy_siltstone",
+    "siltstone",
+    "structured_sandstone"
+  ],
+  "bundle_format_version": "1.0"
+}

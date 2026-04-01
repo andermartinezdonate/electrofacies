@@ -19,9 +19,9 @@ data/wells/inbox/*.csv
 data/wells/processed/
 data/wells/failed/
 
-# Model artifacts (large binaries)
-artifacts/
-!artifacts/.gitkeep
+# Model artifacts — track RF + XGBoost; skip ET/ensemble (too large for git)
+artifacts/tier_*_extra_trees_*/
+artifacts/tier_*_voting_ensemble_*/
 
 # Outputs
 outputs/

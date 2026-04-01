@@ -1,0 +1,25 @@
+{
+  "timestamp": "20260401T152359Z",
+  "tier": "tier_4",
+  "algorithm": "xgboost",
+  "feature_names": [
+    "GR_zscore",
+    "RESD_zscore",
+    "GR_rmean",
+    "RESD_rmean",
+    "GR_rstd",
+    "RESD_rstd",
+    "GR_diff",
+    "RESD_diff",
+    "relative_depth"
+  ],
+  "class_names": [
+    "calciturbidite",
+    "clast_supported_conglomerate",
+    "massive_sandstone",
+    "sandy_siltstone",
+    "siltstone",
+    "structured_sandstone"
+  ],
+  "bundle_format_version": "1.0"
+}
