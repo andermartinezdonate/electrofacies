@@ -658,6 +658,25 @@ class _LabelEncodedPipelineWrapper:
     def classes_(self) -> np.ndarray:
         return self._label_encoder.classes_
 
+    def __getstate__(self) -> Dict[str, Any]:
+        return {"_pipeline": self._pipeline, "_label_encoder": self._label_encoder}
+
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        if "_pipeline" in state:
+            self._pipeline = state["_pipeline"]
+            self._label_encoder = state["_label_encoder"]
+        else:
+            # Legacy: the old __getattr__ bug caused pickle to save the
+            # inner pipeline's state (steps, memory, ...) instead of the
+            # wrapper's.  Reconstruct the pipeline from those attributes.
+            from imblearn.pipeline import Pipeline as ImbPipeline
+            pipeline = ImbPipeline.__new__(ImbPipeline)
+            pipeline.__dict__.update(state)
+            self._pipeline = pipeline
+            # Label encoder is lost; set a placeholder.
+            # Callers must call _fix_label_encoder(classes) after loading.
+            self._label_encoder = None
+
     def __getattr__(self, name: str) -> Any:
         # Guard against infinite recursion during unpickling —
         # pickle calls __getattr__ before __dict__ is populated.
