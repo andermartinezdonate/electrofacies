@@ -768,11 +768,17 @@ def generate_png_download(fig: plt.Figure) -> bytes:
 def render_footer():
     st.markdown("---")
     st.markdown(
-        "<div style='text-align: center; color: #888; font-size: 0.85em; padding: 10px 0;'>"
-        "Built by <b>Ander Martinez-Doñate</b> &nbsp;|&nbsp; "
-        "<a href='https://www.linkedin.com/in/andermart' target='_blank'>LinkedIn</a> &nbsp;|&nbsp; "
-        "<a href='https://github.com/andermartinezdonate' target='_blank'>GitHub</a>"
-        "</div>",
+        f"<div style='text-align: center; color: #999; font-size: 0.85em; "
+        f"padding: 12px 0;'>"
+        f"Built by <b style='color: {UT_CHARCOAL};'>Ander Martinez-Doñate</b>"
+        f" &nbsp;&middot;&nbsp; University of Texas at Austin"
+        f" &nbsp;&middot;&nbsp; "
+        f"<a href='https://www.linkedin.com/in/andermart' target='_blank' "
+        f"style='color: {UT_BURNT_ORANGE};'>LinkedIn</a>"
+        f" &nbsp;&middot;&nbsp; "
+        f"<a href='https://github.com/andermartinezdonate' target='_blank' "
+        f"style='color: {UT_BURNT_ORANGE};'>GitHub</a>"
+        f"</div>",
         unsafe_allow_html=True,
     )
 
@@ -1090,10 +1096,25 @@ def main():
         initial_sidebar_state="collapsed",
     )
 
+    # ---- Global CSS ----
+    st.markdown(f"""
+    <style>
+        .step-card {{
+            background: #FAFAFA;
+            border-radius: 8px;
+            padding: 18px 16px;
+            border-top: 3px solid {UT_BURNT_ORANGE};
+            height: 100%;
+        }}
+        .step-card h4 {{ margin: 0 0 6px 0; color: {UT_CHARCOAL}; font-size: 1.05em; }}
+        .step-card p {{ margin: 0; color: #555; font-size: 0.9em; line-height: 1.45; }}
+    </style>
+    """, unsafe_allow_html=True)
+
     # ---- Title with burnt orange underline ----
     st.markdown(
-        f"<h1 style='text-align: center; margin-bottom: 0;'>"
-        f"\U0001faa8 Electrofacies Prediction System</h1>"
+        f"<h1 style='text-align: center; margin-bottom: 0; color: {UT_CHARCOAL};'>"
+        f"Electrofacies Prediction System</h1>"
         f"<div style='text-align: center; margin: 0 auto 20px auto; "
         f"width: 120px; height: 4px; background-color: {UT_BURNT_ORANGE}; "
         f"border-radius: 2px;'></div>",
@@ -1186,7 +1207,11 @@ def _render_landing_page():
     """Show info sections when no files are uploaded."""
     st.divider()
 
-    st.markdown("### How It Works")
+    st.markdown(
+        f"<h3 style='text-align: center; color: {UT_CHARCOAL}; "
+        f"margin-top: 10px;'>How It Works</h3>",
+        unsafe_allow_html=True,
+    )
     cols = st.columns(4)
     steps = [
         ("1. Upload", "Drop one or more LAS files above. We support 144+ vendor mnemonic aliases."),
@@ -1196,8 +1221,11 @@ def _render_landing_page():
     ]
     for col, (title, desc) in zip(cols, steps):
         with col:
-            st.markdown(f"#### {title}")
-            st.markdown(desc)
+            st.markdown(
+                f"<div class='step-card'><h4>{title}</h4><p>{desc}</p></div>",
+                unsafe_allow_html=True,
+            )
+    st.markdown("")  # spacing
 
     # Facies descriptions
     render_facies_descriptions()
