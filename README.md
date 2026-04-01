@@ -26,13 +26,15 @@ The system uses a **4-tier routing** approach that automatically selects the bes
 | Tier 3 — Triple Combo | GR, RESD, RHOB | 13 |
 | Tier 4 — Minimal | GR, RESD | 9 |
 
-Each tier trains both **Random Forest** and **XGBoost** classifiers with:
-- SMOTE oversampling for class imbalance
+Each tier trains **Random Forest**, **XGBoost**, and **Extra Trees** classifiers with:
+- log10(RESD) preprocessing (reduces skewness from 11.7 to 1.4)
+- SMOTE oversampling with adaptive k-neighbors for class imbalance
 - Depth-blocked train/test splits (respects spatial autocorrelation)
 - GroupKFold cross-validation with randomized hyperparameter search
 
 ### Feature Engineering
 
+- log10 transform on RESD (resistivity spans 3 orders of magnitude)
 - Z-scores, rolling mean/std (window=5), first-order differences
 - Relative depth normalized to [0, 1]
 
@@ -94,7 +96,7 @@ electrofacies/
 │   ├── qc/                         # Confidence scoring, OOD detection, QC reports
 │   └── visualization/              # Log displays, confusion matrices, figures
 ├── data/training/
-│   └── PDB03_training.xlsx         # Training well (Delaware Mountain Group)
+│   └── PDB03_training_ready.xlsx    # Training well (Delaware Mountain Group)
 └── artifacts/                      # Trained model bundles (generated)
 ```
 

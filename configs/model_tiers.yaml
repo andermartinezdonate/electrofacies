@@ -31,6 +31,7 @@ tiers:
 algorithms:
   - random_forest
   - xgboost
+  - extra_trees
 
 # Feature engineering applied on top of raw logs
 feature_engineering:

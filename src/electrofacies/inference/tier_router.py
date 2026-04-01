@@ -255,7 +255,7 @@ def load_tier_models(
     # Lazy import to avoid hard circular dependency at module level.
     from electrofacies.training.artifacts import load_model_bundle
 
-    algorithms = ["random_forest", "xgboost"]
+    algorithms = ["random_forest", "xgboost", "extra_trees", "voting_ensemble"]
     loaded: Dict[str, Any] = {}
 
     for algo in algorithms:

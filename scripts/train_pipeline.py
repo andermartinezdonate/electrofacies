@@ -97,8 +97,12 @@ logger.info("=" * 60)
 
 from electrofacies.preprocessing.transform import FaciesTransformer
 from electrofacies.training.split import create_depth_blocked_split, make_depth_groups
-from electrofacies.training.train import train_random_forest, train_xgboost
-from electrofacies.training.evaluate import evaluate_model
+from electrofacies.training.train import (
+    train_random_forest, train_xgboost, train_extra_trees, SoftVotingEnsemble,
+)
+from electrofacies.training.evaluate import (
+    evaluate_model, evaluate_model_cv, analyze_class_confusion,
+)
 from electrofacies.training.artifacts import save_model_bundle
 from electrofacies.qc.ood import OODDetector
 
@@ -136,7 +140,15 @@ for tier_name, tier_info in sorted(tiers.items(), key=lambda x: x[1]["priority"]
     features_df, feature_names = transformer.fit_transform(tier_df, required_logs)
     logger.info("Engineered %d features: %s...", len(feature_names), feature_names[:5])
 
-    X = features_df[feature_names].values
+    X_df = features_df[feature_names]
+    # Drop rows with NaN introduced by diff/rolling features at edges
+    nan_mask = X_df.isna().any(axis=1)
+    if nan_mask.any():
+        clean_idx = X_df.index[~nan_mask]
+        X_df = X_df.loc[clean_idx]
+        tier_df = tier_df.loc[clean_idx]
+        logger.info("Dropped %d NaN rows from feature engineering edges", nan_mask.sum())
+    X = X_df.values
     y = tier_df[target_col].values
 
     # Depth-blocked split
@@ -179,6 +191,33 @@ for tier_name, tier_info in sorted(tiers.items(), key=lambda x: x[1]["priority"]
         logger.exception("OOD detector fitting failed for tier '%s'", tier_name)
         ood = None
 
+    # Collect fitted models for ensemble
+    fitted_models = {}  # {algo_name: (model, metrics)}
+
+    # Groups for CV on full data (for post-training CV evaluation)
+    if depth_col in tier_df.columns:
+        groups_full = make_depth_groups(
+            pd.Series(depths), group_size=train_cfg.get("depth_group_size", 50),
+        )
+    else:
+        groups_full = None
+
+    # Shared imports for CV evaluation
+    from imblearn.over_sampling import SMOTE as _SMOTE
+    from imblearn.pipeline import Pipeline as _ImbPipeline
+    from electrofacies.training.train import _adaptive_smote_k
+
+    # Collect fitted models for ensemble
+    fitted_models = {}  # {algo_name: (model, metrics)}
+
+    # Groups for CV on full data (for post-training CV evaluation)
+    if depth_col in tier_df.columns:
+        groups_full = make_depth_groups(
+            pd.Series(depths), group_size=train_cfg.get("depth_group_size", 50),
+        )
+    else:
+        groups_full = None
+
     # ── Train Random Forest ──
     logger.info("Training Random Forest for tier '%s'...", tier_name)
     rf_config = CONFIG["models"]["random_forest"].copy()
@@ -188,27 +227,33 @@ for tier_name, tier_info in sorted(tiers.items(), key=lambda x: x[1]["priority"]
             X_train, y_train, groups, rf_config,
             use_smote=train_cfg.get("use_smote", True),
         )
-
         rf_metrics = evaluate_model(rf_model, X_test, y_test, class_names=class_names)
         logger.info("RF accuracy: %.3f, balanced_accuracy: %.3f, kappa: %.3f",
-                     rf_metrics["accuracy"],
-                     rf_metrics["balanced_accuracy"],
+                     rf_metrics["accuracy"], rf_metrics["balanced_accuracy"],
                      rf_metrics["cohen_kappa"])
+        analyze_class_confusion(rf_metrics, class_names)
+        fitted_models["random_forest"] = (rf_model, rf_metrics, rf_params)
 
-        rf_bundle_dir = save_model_bundle(
-            model=rf_model,
-            transformer=transformer,
-            ood_detector=ood,
-            config=CONFIG,
-            metrics=rf_metrics,
-            output_dir=str(artifacts_dir),
-            tier_name=tier_name,
-            algorithm="random_forest",
-            feature_names=feature_names,
-            class_names=class_names,
+        # CV evaluation (non-critical)
+        try:
+            from sklearn.ensemble import RandomForestClassifier as _RFC
+            def _build_rf():
+                _k = _adaptive_smote_k(y, rf_config.get("smote_k_neighbors", 3))
+                _clf = _RFC(random_state=42, n_jobs=-1)
+                for pk, val in rf_params.items():
+                    setattr(_clf, pk.replace("clf__", ""), val)
+                return _ImbPipeline([("smote", _SMOTE(k_neighbors=_k, random_state=42)), ("clf", _clf)])
+            rf_cv = evaluate_model_cv(_build_rf, X, y, groups_full, n_splits=5, class_names=class_names)
+            rf_metrics["cv_evaluation"] = rf_cv
+        except Exception:
+            logger.exception("RF CV evaluation failed (non-critical)")
+
+        save_model_bundle(
+            model=rf_model, transformer=transformer, ood_detector=ood,
+            config=CONFIG, metrics=rf_metrics, output_dir=str(artifacts_dir),
+            tier_name=tier_name, algorithm="random_forest",
+            feature_names=feature_names, class_names=class_names,
         )
-        logger.info("RF bundle saved: %s", rf_bundle_dir)
-
     except Exception:
         logger.exception("Random Forest training failed for tier '%s'", tier_name)
 
@@ -221,29 +266,103 @@ for tier_name, tier_info in sorted(tiers.items(), key=lambda x: x[1]["priority"]
             X_train, y_train, groups, xgb_config,
             use_smote=train_cfg.get("use_smote", True),
         )
-
         xgb_metrics = evaluate_model(xgb_model, X_test, y_test, class_names=class_names)
         logger.info("XGB accuracy: %.3f, balanced_accuracy: %.3f, kappa: %.3f",
-                     xgb_metrics["accuracy"],
-                     xgb_metrics["balanced_accuracy"],
+                     xgb_metrics["accuracy"], xgb_metrics["balanced_accuracy"],
                      xgb_metrics["cohen_kappa"])
+        analyze_class_confusion(xgb_metrics, class_names)
+        fitted_models["xgboost"] = (xgb_model, xgb_metrics, xgb_params)
 
-        xgb_bundle_dir = save_model_bundle(
-            model=xgb_model,
-            transformer=transformer,
-            ood_detector=ood,
-            config=CONFIG,
-            metrics=xgb_metrics,
-            output_dir=str(artifacts_dir),
-            tier_name=tier_name,
-            algorithm="xgboost",
-            feature_names=feature_names,
-            class_names=class_names,
+        # CV evaluation (non-critical)
+        try:
+            from xgboost import XGBClassifier as _XGBC
+            from sklearn.preprocessing import LabelEncoder as _LE
+            _le_cv = _LE()
+            y_enc = _le_cv.fit_transform(y)
+            def _build_xgb():
+                _k = _adaptive_smote_k(y_enc, xgb_config.get("smote_k_neighbors", 3))
+                _clf = _XGBC(eval_metric="mlogloss", random_state=42, n_jobs=-1, verbosity=0)
+                for pk, val in xgb_params.items():
+                    setattr(_clf, pk.replace("clf__", ""), val)
+                return _ImbPipeline([("smote", _SMOTE(k_neighbors=_k, random_state=42)), ("clf", _clf)])
+            xgb_cv = evaluate_model_cv(
+                _build_xgb, X, y_enc, groups_full, n_splits=5,
+                class_names=[str(c) for c in _le_cv.classes_],
+            )
+            xgb_metrics["cv_evaluation"] = xgb_cv
+        except Exception:
+            logger.exception("XGB CV evaluation failed (non-critical)")
+
+        save_model_bundle(
+            model=xgb_model, transformer=transformer, ood_detector=ood,
+            config=CONFIG, metrics=xgb_metrics, output_dir=str(artifacts_dir),
+            tier_name=tier_name, algorithm="xgboost",
+            feature_names=feature_names, class_names=class_names,
         )
-        logger.info("XGB bundle saved: %s", xgb_bundle_dir)
-
     except Exception:
         logger.exception("XGBoost training failed for tier '%s'", tier_name)
+
+    # ── Train Extra Trees ──
+    logger.info("Training Extra Trees for tier '%s'...", tier_name)
+    et_config = CONFIG["models"]["extra_trees"].copy()
+    et_config["smote_k_neighbors"] = train_cfg.get("smote_k_neighbors", 3)
+    try:
+        et_model, et_params = train_extra_trees(
+            X_train, y_train, groups, et_config,
+            use_smote=train_cfg.get("use_smote", True),
+        )
+        et_metrics = evaluate_model(et_model, X_test, y_test, class_names=class_names)
+        logger.info("ET accuracy: %.3f, balanced_accuracy: %.3f, kappa: %.3f",
+                     et_metrics["accuracy"], et_metrics["balanced_accuracy"],
+                     et_metrics["cohen_kappa"])
+        analyze_class_confusion(et_metrics, class_names)
+        fitted_models["extra_trees"] = (et_model, et_metrics, et_params)
+
+        # CV evaluation (non-critical)
+        try:
+            from sklearn.ensemble import ExtraTreesClassifier as _ETC
+            def _build_et():
+                _k = _adaptive_smote_k(y, et_config.get("smote_k_neighbors", 3))
+                _clf = _ETC(random_state=42, n_jobs=-1)
+                for pk, val in et_params.items():
+                    setattr(_clf, pk.replace("clf__", ""), val)
+                return _ImbPipeline([("smote", _SMOTE(k_neighbors=_k, random_state=42)), ("clf", _clf)])
+            et_cv = evaluate_model_cv(_build_et, X, y, groups_full, n_splits=5, class_names=class_names)
+            et_metrics["cv_evaluation"] = et_cv
+        except Exception:
+            logger.exception("ET CV evaluation failed (non-critical)")
+
+        save_model_bundle(
+            model=et_model, transformer=transformer, ood_detector=ood,
+            config=CONFIG, metrics=et_metrics, output_dir=str(artifacts_dir),
+            tier_name=tier_name, algorithm="extra_trees",
+            feature_names=feature_names, class_names=class_names,
+        )
+    except Exception:
+        logger.exception("Extra Trees training failed for tier '%s'", tier_name)
+
+    # ── Build Soft-Voting Ensemble ──
+    if len(fitted_models) >= 2:
+        logger.info("Building voting ensemble for tier '%s' from %d models...",
+                     tier_name, len(fitted_models))
+        try:
+            ensemble_members = [(name, mdl) for name, (mdl, _, _) in fitted_models.items()]
+            ensemble = SoftVotingEnsemble(ensemble_members, class_names)
+
+            ens_metrics = evaluate_model(ensemble, X_test, y_test, class_names=class_names)
+            logger.info("ENSEMBLE accuracy: %.3f, balanced_accuracy: %.3f, kappa: %.3f",
+                         ens_metrics["accuracy"], ens_metrics["balanced_accuracy"],
+                         ens_metrics["cohen_kappa"])
+            analyze_class_confusion(ens_metrics, class_names)
+
+            save_model_bundle(
+                model=ensemble, transformer=transformer, ood_detector=ood,
+                config=CONFIG, metrics=ens_metrics, output_dir=str(artifacts_dir),
+                tier_name=tier_name, algorithm="voting_ensemble",
+                feature_names=feature_names, class_names=class_names,
+            )
+        except Exception:
+            logger.exception("Voting ensemble failed for tier '%s'", tier_name)
 
 logger.info("=" * 60)
 logger.info("TRAINING COMPLETE")

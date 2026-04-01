@@ -79,6 +79,23 @@ class FaciesTransformer:
 
     # -- Core interface ------------------------------------------------------
 
+    def _apply_log_transforms(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Apply log10 transforms to configured columns.
+
+        Columns listed in ``config["log_transforms"]`` are replaced with
+        their ``log10`` values.  Values are clipped to a minimum of 1e-6
+        before the transform to avoid ``-inf``.
+        """
+        log_cols = self.config.get("log_transforms", [])
+        if not log_cols:
+            return df
+        out = df.copy()
+        for col in log_cols:
+            if col in out.columns:
+                out[col] = np.log10(out[col].clip(lower=1e-6))
+                logger.debug("Applied log10 transform to '%s'.", col)
+        return out
+
     def fit(
         self,
         df: pd.DataFrame,
@@ -99,7 +116,8 @@ class FaciesTransformer:
             ``self``, for method chaining.
         """
         self._feature_cols = list(feature_cols)
-        self._stats = compute_training_stats(df, feature_cols)
+        df_transformed = self._apply_log_transforms(df)
+        self._stats = compute_training_stats(df_transformed, feature_cols)
         self._fitted = True
         logger.info(
             "FaciesTransformer fitted on %d rows, %d features.",
@@ -113,7 +131,7 @@ class FaciesTransformer:
         df: pd.DataFrame,
         feature_cols: Optional[Sequence[str]] = None,
     ) -> Tuple[pd.DataFrame, List[str]]:
-        """Apply z-scoring (using stored stats) and engineer all features.
+        """Apply log transforms, z-scoring (using stored stats), and engineer all features.
 
         Parameters
         ----------
@@ -142,8 +160,9 @@ class FaciesTransformer:
         if feature_cols is None:
             raise RuntimeError("No feature columns available.")
 
+        df_transformed = self._apply_log_transforms(df)
         result_df, feat_names = engineer_features(
-            df,
+            df_transformed,
             feature_cols=feature_cols,
             config=self.config,
             training_stats=self._stats,

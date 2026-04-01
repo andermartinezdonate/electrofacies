@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
 from sklearn.model_selection import (
     GroupKFold,
     RandomizedSearchCV,
@@ -54,6 +54,30 @@ except ImportError:  # pragma: no cover
         "imbalanced-learn is not installed.  SMOTE will be disabled.  "
         "Install with: pip install imbalanced-learn"
     )
+
+
+# ===================================================================
+# SMOTE helpers
+# ===================================================================
+
+def _adaptive_smote_k(y: np.ndarray, default_k: int = 3) -> int:
+    """Choose SMOTE k_neighbors so it does not exceed the smallest minority class.
+
+    SMOTE fails when k_neighbors >= the number of samples in the smallest
+    class.  This helper caps k at ``min_class_count - 1`` (minimum 1).
+    """
+    _, counts = np.unique(y, return_counts=True)
+    min_count = int(counts.min())
+    safe_k = min(default_k, min_count - 1)
+    safe_k = max(safe_k, 1)
+    if safe_k < default_k:
+        logger.info(
+            "SMOTE k_neighbors reduced from %d to %d (smallest class has %d samples).",
+            default_k,
+            safe_k,
+            min_count,
+        )
+    return safe_k
 
 
 # ===================================================================
@@ -167,10 +191,8 @@ def train_random_forest(
     # Build pipeline steps
     steps: list = []
     if use_smote and _HAS_IMBLEARN:
-        smote = SMOTE(
-            k_neighbors=config.get("smote_k_neighbors", 3),
-            random_state=42,
-        )
+        smote_k = _adaptive_smote_k(y_train, config.get("smote_k_neighbors", 3))
+        smote = SMOTE(k_neighbors=smote_k, random_state=42)
         steps.append(("smote", smote))
     elif use_smote and not _HAS_IMBLEARN:
         logger.warning("SMOTE requested but imbalanced-learn not installed; skipping.")
@@ -282,10 +304,8 @@ def train_xgboost(
     # Build pipeline steps
     steps: list = []
     if use_smote and _HAS_IMBLEARN:
-        smote = SMOTE(
-            k_neighbors=config.get("smote_k_neighbors", 3),
-            random_state=42,
-        )
+        smote_k = _adaptive_smote_k(y_train_enc, config.get("smote_k_neighbors", 3))
+        smote = SMOTE(k_neighbors=smote_k, random_state=42)
         steps.append(("smote", smote))
     elif use_smote and not _HAS_IMBLEARN:
         logger.warning("SMOTE requested but imbalanced-learn not installed; skipping.")
@@ -299,17 +319,19 @@ def train_xgboost(
 
     # Hyperparameter distributions
     param_distributions = {
-        "clf__n_estimators": config.get("n_estimators", [200, 300, 500]),
+        "clf__n_estimators": config.get("n_estimators", [300, 500, 800, 1000]),
         "clf__max_depth": config.get("max_depth", [4, 6, 8, 10]),
-        "clf__learning_rate": config.get("learning_rate", [0.01, 0.05, 0.1]),
+        "clf__learning_rate": config.get("learning_rate", [0.01, 0.03, 0.05, 0.1]),
         "clf__subsample": config.get("subsample", [0.7, 0.8, 0.9, 1.0]),
         "clf__colsample_bytree": config.get(
             "colsample_bytree", [0.7, 0.8, 0.9, 1.0]
         ),
         "clf__min_child_weight": config.get("min_child_weight", [1, 3, 5]),
         "clf__gamma": config.get("gamma", [0, 0.1, 0.3]),
+        "clf__reg_alpha": config.get("reg_alpha", [0, 0.1, 1.0]),
+        "clf__reg_lambda": config.get("reg_lambda", [1, 3, 5]),
     }
-    n_iter = config.get("n_iter_search", 50)
+    n_iter = config.get("n_iter_search", 80)
 
     # CV strategy (use encoded labels for XGBoost)
     if groups is not None:
@@ -345,6 +367,91 @@ def train_xgboost(
     wrapped = _LabelEncodedPipelineWrapper(search.best_estimator_, _xgb_le)
 
     return wrapped, search.best_params_
+
+
+def train_extra_trees(
+    X_train: np.ndarray | pd.DataFrame,
+    y_train: np.ndarray | pd.Series,
+    groups: Optional[np.ndarray],
+    config: Dict[str, Any],
+    use_smote: bool = True,
+) -> Tuple[Any, Dict[str, Any]]:
+    """Train an Extra Trees classifier with optional SMOTE and hyperparameter search.
+
+    Extra Trees uses fully random splits (rather than best splits), adding
+    more randomisation than Random Forest.  This can improve performance on
+    noisy, overlapping classes like structured vs massive sandstone.
+
+    Parameters
+    ----------
+    X_train, y_train, groups, config, use_smote
+        Same as :func:`train_random_forest`.
+
+    Returns
+    -------
+    tuple[Pipeline, dict]
+        ``(best_pipeline, best_params)``.
+    """
+    logger.info("Training Extra Trees (SMOTE=%s)", use_smote)
+
+    et = ExtraTreesClassifier(random_state=42, n_jobs=-1)
+
+    steps: list = []
+    if use_smote and _HAS_IMBLEARN:
+        smote_k = _adaptive_smote_k(y_train, config.get("smote_k_neighbors", 3))
+        smote = SMOTE(k_neighbors=smote_k, random_state=42)
+        steps.append(("smote", smote))
+    elif use_smote and not _HAS_IMBLEARN:
+        logger.warning("SMOTE requested but imbalanced-learn not installed; skipping.")
+    steps.append(("clf", et))
+
+    if _HAS_IMBLEARN:
+        pipeline = ImbPipeline(steps)
+    else:
+        from sklearn.pipeline import Pipeline as SkPipeline
+        pipeline = SkPipeline(steps)
+
+    param_distributions = {
+        "clf__n_estimators": config.get("n_estimators", [200, 300, 500]),
+        "clf__max_depth": config.get("max_depth", [None, 10, 15, 20]),
+        "clf__min_samples_split": config.get("min_samples_split", [2, 5, 10]),
+        "clf__min_samples_leaf": config.get("min_samples_leaf", [1, 2, 3]),
+        "clf__max_features": config.get("max_features", ["sqrt", "log2"]),
+        "clf__class_weight": config.get(
+            "class_weight", ["balanced", "balanced_subsample"]
+        ),
+    }
+    n_iter = config.get("n_iter_search", 40)
+
+    if groups is not None:
+        n_unique = len(np.unique(groups))
+        n_splits = min(5, n_unique)
+        cv = list(GroupKFold(n_splits=n_splits).split(X_train, y_train, groups))
+        logger.info("Using GroupKFold with %d splits (%d groups)", n_splits, n_unique)
+    else:
+        cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+        logger.info("No groups provided — using StratifiedKFold (5 splits)")
+
+    search = RandomizedSearchCV(
+        pipeline,
+        param_distributions=param_distributions,
+        n_iter=min(n_iter, _max_combinations(param_distributions)),
+        cv=cv,
+        scoring="balanced_accuracy",
+        n_jobs=-1,
+        random_state=42,
+        verbose=0,
+        refit=True,
+        error_score="raise",
+    )
+    search.fit(X_train, y_train)
+
+    logger.info(
+        "ET best balanced_accuracy: %.4f | params: %s",
+        search.best_score_,
+        search.best_params_,
+    )
+    return search.best_estimator_, search.best_params_
 
 
 # ===================================================================
@@ -557,6 +664,48 @@ class _LabelEncodedPipelineWrapper:
         if name in ("_pipeline", "_label_encoder"):
             raise AttributeError(name)
         return getattr(self._pipeline, name)
+
+
+# ===================================================================
+# Soft-voting ensemble
+# ===================================================================
+
+class SoftVotingEnsemble:
+    """Ensemble that averages predict_proba from multiple fitted models.
+
+    Accepts pre-fitted models (RF, XGBoost, Extra Trees) and produces
+    predictions by averaging their class probability outputs.  Serializable
+    with joblib.
+    """
+
+    def __init__(self, models: List[Tuple[str, Any]], class_names: List[str]) -> None:
+        self._models = models  # [(name, fitted_model), ...]
+        self._class_names = list(class_names)
+
+    def predict_proba(self, X: Any) -> np.ndarray:
+        probas = []
+        for name, model in self._models:
+            try:
+                p = model.predict_proba(X)
+                probas.append(p)
+            except Exception:
+                logger.warning("Ensemble member '%s' failed predict_proba; skipping.", name)
+        if not probas:
+            raise RuntimeError("All ensemble members failed.")
+        return np.mean(probas, axis=0)
+
+    def predict(self, X: Any) -> np.ndarray:
+        avg_probas = self.predict_proba(X)
+        indices = np.argmax(avg_probas, axis=1)
+        return np.array([self._class_names[i] for i in indices])
+
+    @property
+    def classes_(self) -> np.ndarray:
+        return np.array(self._class_names)
+
+    def __repr__(self) -> str:
+        names = [n for n, _ in self._models]
+        return f"SoftVotingEnsemble(models={names}, n_classes={len(self._class_names)})"
 
 
 # ===================================================================
